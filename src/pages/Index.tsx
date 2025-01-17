@@ -16,19 +16,13 @@ const Index = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("listings")
-        .select("category")
-        .eq('category', 'category') // Using eq instead of distinct
-        .then(result => {
-          // Manually get unique categories
-          if (result.data) {
-            const uniqueCategories = [...new Set(result.data.map(item => item.category))];
-            return uniqueCategories;
-          }
-          return [];
-        });
+        .select("category");
       
       if (error) throw error;
-      return data || [];
+      
+      // Get unique categories using Set
+      const uniqueCategories = [...new Set(data?.map(item => item.category) || [])];
+      return uniqueCategories;
     }
   });
 
