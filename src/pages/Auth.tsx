@@ -15,6 +15,20 @@ const Auth = () => {
       if (event === "SIGNED_IN" && session) {
         navigate("/");
       }
+      
+      // Clear error message when user signs out
+      if (event === "SIGNED_OUT") {
+        setErrorMessage("");
+      }
+
+      // Handle authentication errors
+      if (event === "USER_UPDATED") {
+        supabase.auth.getSession().then(({ error }) => {
+          if (error) {
+            setErrorMessage(getErrorMessage(error));
+          }
+        });
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -26,6 +40,8 @@ const Auth = () => {
         return "Invalid email or password. Please check your credentials and try again.";
       case "Email not confirmed":
         return "Please verify your email address before signing in.";
+      case "User not found":
+        return "No account found with these credentials. Please sign up first.";
       default:
         return error.message;
     }
