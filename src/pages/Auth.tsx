@@ -11,8 +11,19 @@ const Auth = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session) {
+        // Send welcome email when user signs up
+        try {
+          await supabase.functions.invoke('welcome-email', {
+            body: {
+              email: session.user.email,
+              name: session.user.user_metadata?.full_name
+            }
+          });
+        } catch (error) {
+          console.error('Error sending welcome email:', error);
+        }
         navigate("/");
       }
       
@@ -51,7 +62,7 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-4">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-accent">Community Hub</h1>
+          <h1 className="text-4xl font-bold mb-2 text-accent">Kenya Hub</h1>
           <p className="text-muted-foreground">Sign in or create an account to start selling</p>
         </div>
         
