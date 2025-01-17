@@ -17,10 +17,18 @@ const Index = () => {
       const { data, error } = await supabase
         .from("listings")
         .select("category")
-        .distinct();
+        .eq('category', 'category') // Using eq instead of distinct
+        .then(result => {
+          // Manually get unique categories
+          if (result.data) {
+            const uniqueCategories = [...new Set(result.data.map(item => item.category))];
+            return uniqueCategories;
+          }
+          return [];
+        });
       
       if (error) throw error;
-      return data.map(item => item.category);
+      return data || [];
     }
   });
 
@@ -91,7 +99,7 @@ const Index = () => {
                 price={listing.price?.toString()}
                 image={listing.image_url || "https://images.unsplash.com/photo-1493106641515-6b5631de4bb9"}
                 category={listing.category}
-                contact={listing.profiles?.email || "contact@example.com"}
+                contact={listing.profiles?.username || "contact@example.com"} // Changed from email to username
               />
             ))}
           </div>
